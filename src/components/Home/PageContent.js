@@ -6,7 +6,6 @@ import { database } from "../../firebase.init";
 import AddGroupBtn from "./AddGroup/AddGroupBtn";
 import AddGroupModal from "./AddGroup/AddGroupModal";
 import Card from "./Card";
-import RegisterUserModal from "./RegisterUser/RegisterUserModal";
 
 const PageContent = () => {
   const query = collection(database, "groups");
