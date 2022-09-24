@@ -1,0 +1,30 @@
+.addTask{
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+}
+.addTaskBtn{
+    width: 4em;
+    height: 4rem;
+    display: block;
+    /* padding: 00.75rem 1.7rem; */
+    z-index: 1;
+    position: fixed;
+    transform: translateZ(-50%);
+    bottom: 2rem;
+    right: 3rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.8rem;
+    border-radius: 50%;
+    backdrop-filter: blur(15px);
+    background: #3221e0;
+    box-shadow: 1px 6px 8px rgb(0 0 0 / 28%);
+    cursor: pointer;
+}
+.addTaskBtnIcon{
+    color: white;
+}
