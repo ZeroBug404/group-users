@@ -1,32 +1,47 @@
 /* eslint-disable jsx-a11y/img-redundant-alt */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React from "react";
+import { addDoc, collection, getDocs, setDoc, where, query } from "firebase/firestore";
+import React, { useState } from "react";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
+import { useCollectionData } from "react-firebase-hooks/firestore";
 import { BsGoogle } from "react-icons/bs";
 import { Link, useNavigate } from "react-router-dom";
-import auth from "../../../firebase.init";
-import { collection } from "firebase/firestore";
-import { useCollectionData } from "react-firebase-hooks/firestore";
-import { database } from "../../../firebase.init";
+import auth, { database } from "../../../firebase.init";
 
 const Register = () => {
-  const query = collection(database, "groups");
-  const [docs, dbLoading, dbError, snapshot] = useCollectionData(query);
+  const [group, setGroup] = useState();
+  const queryAll = collection(database, "groups");
+  const [docs, dbLoading, dbError, snapshot] = useCollectionData(queryAll);
+
+  // console.log(group);
 
   const [createUserWithEmailAndPassword, user, loading, error] =
     useCreateUserWithEmailAndPassword(auth);
 
   const navigate = useNavigate();
 
-  const handleRegister = (e) => {
+  const handleRegister = async (e) => {
     e.preventDefault();
     const name = e.target.name.value;
     const email = e.target.email.value;
     const password = e.target.password.value;
 
-    console.log(name);
-
     createUserWithEmailAndPassword(email, password);
+
+    // const groupDetail = e.target.groupDetail.value;
+
+    const collectionRef = collection(database, `groups`);
+    const payload = { name, password, group };
+    const docRef = query(collectionRef, where('name','==',group));
+    const snapshot =  await getDocs(docRef);
+    const results = snapshot.docs.map(doc => ({...doc.data(), id: doc.id}))
+    console.log(results);
+    results.forEach(async result => {
+      const newCollectionRef = collection(database, `groups/${result.id}/users`);
+      await addDoc(newCollectionRef, payload);
+    })
+
+    e.target.reset();
   };
 
   if (user) {
@@ -36,6 +51,7 @@ const Register = () => {
   const navigateLogin = () => {
     navigate("/login");
   };
+
 
   return (
     <section class="h-screen">
@@ -96,20 +112,20 @@ const Register = () => {
                 />
               </div>
 
-              <div className="dropdown mb-3">
-                <label tabIndex={0} className="btn m-1 text-slate-700">
-                  Select group
-                </label>
-                <ul
-                  tabIndex={0}
-                  className="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+              <div className="">
+
+                <h1>Selected Group: {group}</h1>
+                <select
+                  id="fruits"
+                  value={group}
+                  onChange={(e) => setGroup(e.target.value)}
                 >
-                  {
-                    docs?.map((doc) => <li>
-                    <a>{doc.name}</a>
-                  </li>)
-                  }
-                </ul>
+                  {docs?.map((doc) => (
+                    <option>{doc.name}</option>
+                  ))}
+                </select>
+
+                
               </div>
 
               <div class="text-center lg:text-left">

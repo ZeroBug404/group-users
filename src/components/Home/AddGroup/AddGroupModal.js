@@ -4,22 +4,14 @@ import { database } from "../../../firebase.init";
 
 const AddGroupModal = () => {
   //api to add group
-  const handleAddGroupSubmit = (e) => {
+  const handleAddGroupSubmit = async(e) => {
     e.preventDefault();
     const name = e.target.name.value;
     const groupDetail = e.target.groupDetail.value;
     const collectionRef = collection(database, `groups`);
-    // console.log(collectionRef);
-    addDoc(collectionRef, {
-      name: name,
-      groupDetail: groupDetail,
-    })
-    .then(() => {
-      console.log('Added');
-    })
-    .catch((err) => {
-      console.log(err.message);
-    })
+    const payload = {name, groupDetail}
+    const docRef = await addDoc(collectionRef, payload);
+    console.log(docRef.id);
 
     e.target.reset();
   };

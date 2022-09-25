@@ -1,59 +1,98 @@
-import React from "react";
-import Modal from 'react-modal';
-import {ImCross} from 'react-icons/im'
+import { collection, getDocs, query, where } from "firebase/firestore";
+import React, { useState } from "react";
+import { ImCross } from "react-icons/im";
+import Modal from "react-modal";
+import { database } from "../../firebase.init";
 
 const customStyles = {
-    content: {
-      top: '50%',
-      left: '50%',
-      right: 'auto',
-      bottom: 'auto',
-      marginRight: '-50%',
-      transform: 'translate(-50%, -50%)',
-    },
-  };
-  
-  Modal.setAppElement('#root');
-  
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+  },
+};
+
+Modal.setAppElement("#root");
 
 const Card = ({ doc }) => {
+  // const [docs, dbLoading, dbError] = useCollectionData(qury);
   const { name, groupDetail } = doc;
+  const [users, setUsers] = useState([]);
 
   let subtitle;
   const [modalIsOpen, setIsOpen] = React.useState(false);
 
-  function openModal() {
-    setIsOpen(true);
-  }
+  // function openModal() {
 
-//   function afterOpenModal() {
-//     subtitle.style.color = '#f00';
-//   }
+  // }
+
+  //   function afterOpenModal() {
+  //     subtitle.style.color = '#f00';
+  //   }
 
   function closeModal() {
     setIsOpen(false);
   }
-  
 
-  const handleRegister = (e) => {
-    e.preventDefault();
-    // const name = e.target.name.value;
+    const collectionRef = collection(database, `groups`);
+    const docRef = query(collectionRef, where("name", "==", name));
+    const snapshot =  getDocs(docRef);
+    const results = snapshot.docs?.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+    results?.forEach( (result) => {
+      const newCollectionRef = collection(
+        database,
+        `groups/${result.id}/users`
+      );
+      const snapshot2 =  getDocs(newCollectionRef);
+      const results2 = snapshot2.docs?.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      console.log(results2);
+      // results2?.forEach( (result2) => {
+      //   console.log(results2);
+      //   setUsers(result2);
+      // })
+    });
+
+  const handleGroupDetail = async () => {
+    // to open the modal
+    setIsOpen(true);
+
     // const groupDetail = e.target.groupDetail.value;
-    // const collectionRef = collection(database, `groups`);
-    // // console.log(collectionRef);
-    // addDoc(collectionRef, {
-    //   name: name,
-    //   groupDetail: groupDetail,
-    // })
-    // .then(() => {
-    //   console.log('Added');
-    // })
-    // .catch((err) => {
-    //   console.log(err.message);
-    // })
 
-    // e.target.reset();
+    // const collectionRef = collection(database, `groups`);
+    // const docRef = query(collectionRef, where("name", "==", name));
+    // const snapshot = await getDocs(docRef);
+    // const results = snapshot.docs?.map((doc) => ({
+    //   ...doc.data(),
+    //   id: doc.id,
+    // }));
+    // results.forEach(async (result) => {
+    //   const newCollectionRef = collection(
+    //     database,
+    //     `groups/${result.id}/users`
+    //   );
+    //   const snapshot2 = await getDocs(newCollectionRef);
+    //   const results2 = snapshot2.docs?.map((doc) => ({
+    //     ...doc.data(),
+    //     id: doc.id,
+    //   }));
+    //   results2.forEach(async (result2) => {
+    //     console.log(result2);
+    //     users=result;
+    //     // await users.push(result2);
+    //   })
+    // });
+
   };
+  console.log(users);
   return (
     <div>
       <div className="card bg-gray-600 text-neutral-content">
@@ -61,13 +100,14 @@ const Card = ({ doc }) => {
           <h2 className="card-title">{name}</h2>
           <p>{groupDetail}</p>
           <div className="card-actions justify-end">
-            <button className="btn btn-primary" onClick={openModal}>Register</button>
-            <button className="btn btn-bg-cyan-600">Details</button>
+            <button className="btn btn-primary">Register</button>
+            <button className="btn btn-bg-cyan-600" onClick={handleGroupDetail}>
+              Details
+            </button>
           </div>
         </div>
-        
       </div>
-      
+
       <Modal
         isOpen={modalIsOpen}
         // onAfterOpen={afterOpenModal}
@@ -76,40 +116,16 @@ const Card = ({ doc }) => {
         contentLabel="Example Modal"
       >
         <div className="flex justify-end">
-            <button onClick={closeModal}>
-                <ImCross className="text-slate-700"></ImCross>
-            </button>
+          <button onClick={closeModal}>
+            <ImCross className="text-slate-700"></ImCross>
+          </button>
         </div>
-        <h2 className="text-slate-700 font-semibold text-xl text-center">Register to {name}</h2>
-
-        <form className="flex flex-col w-96" onSubmit={handleRegister}>
-            <input
-              className="text-1xl border-b-4 outline-0 my-5"
-              type="text"
-              name="name"
-              placeholder="Enter username"
-              required
-            />
-            <input
-              className="text-1xl border-b-4 outline-0 my-5"
-              type="password"
-              name="password"
-              placeholder="Enter password"
-              required
-            />
-            <input
-              className="text-1xl border-b-4 outline-0 my-5"
-              type="password"
-              name="password"
-              placeholder="Confirm password"
-              required
-            />
-
-            <button className="btn mt-4
-            ">Save</button>
-          </form>
+        <h2 className="text-slate-700 font-semibold text-xl text-center">
+          {/* {users?.map((user) => (
+            <h2>{user.name}</h2>
+          ))} */}
+        </h2>
       </Modal>
-
     </div>
   );
 };
