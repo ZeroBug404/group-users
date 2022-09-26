@@ -20,7 +20,7 @@ Modal.setAppElement("#root");
 const Card = ({ doc }) => {
   // const [docs, dbLoading, dbError] = useCollectionData(qury);
   const { name, groupDetail } = doc;
-  const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState('');
 
   let subtitle;
   const [modalIsOpen, setIsOpen] = React.useState(false);
@@ -37,59 +37,34 @@ const Card = ({ doc }) => {
     setIsOpen(false);
   }
 
-    const collectionRef = collection(database, `groups`);
-    const docRef = query(collectionRef, where("name", "==", name));
-    const snapshot =  getDocs(docRef);
-    const results = snapshot.docs?.map((doc) => ({
-      ...doc.data(),
-      id: doc.id,
-    }));
-    results?.forEach( (result) => {
-      const newCollectionRef = collection(
-        database,
-        `groups/${result.id}/users`
-      );
-      const snapshot2 =  getDocs(newCollectionRef);
-      const results2 = snapshot2.docs?.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      console.log(results2);
-      // results2?.forEach( (result2) => {
-      //   console.log(results2);
-      //   setUsers(result2);
-      // })
-    });
-
   const handleGroupDetail = async () => {
     // to open the modal
     setIsOpen(true);
 
     // const groupDetail = e.target.groupDetail.value;
 
-    // const collectionRef = collection(database, `groups`);
-    // const docRef = query(collectionRef, where("name", "==", name));
-    // const snapshot = await getDocs(docRef);
-    // const results = snapshot.docs?.map((doc) => ({
-    //   ...doc.data(),
-    //   id: doc.id,
-    // }));
-    // results.forEach(async (result) => {
-    //   const newCollectionRef = collection(
-    //     database,
-    //     `groups/${result.id}/users`
-    //   );
-    //   const snapshot2 = await getDocs(newCollectionRef);
-    //   const results2 = snapshot2.docs?.map((doc) => ({
-    //     ...doc.data(),
-    //     id: doc.id,
-    //   }));
-    //   results2.forEach(async (result2) => {
-    //     console.log(result2);
-    //     users=result;
-    //     // await users.push(result2);
-    //   })
-    // });
+    const collectionRef = collection(database, `groups`);
+    const docRef = query(collectionRef, where("name", "==", name));
+    const snapshot = await getDocs(docRef);
+    const results = snapshot.docs?.map((doc) => ({
+      ...doc.data(),
+      id: doc.id,
+    }));
+    results.forEach(async (result) => {
+      const newCollectionRef = collection(
+        database,
+        `groups/${result.id}/users`
+      );
+      const snapshot2 = await getDocs(newCollectionRef);
+      const results2 = snapshot2.docs?.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      results2.forEach(async (result2) => {
+        console.log(result2);
+          setUsers(result2)
+      })
+    });
 
   };
   console.log(users);
@@ -121,10 +96,9 @@ const Card = ({ doc }) => {
           </button>
         </div>
         <h2 className="text-slate-700 font-semibold text-xl text-center">
-          {/* {users?.map((user) => (
-            <h2>{user.name}</h2>
-          ))} */}
+          Users in this group
         </h2>
+        <h4>{users.id}</h4>
       </Modal>
     </div>
   );
